@@ -23,9 +23,9 @@ import { AppIcon } from '@/components/app-icon';
 import { EditProfileModal } from '@/components/edit-profile-modal';
 
 export default function ProfileScreen() {
-  // State for profile information
-  const [name, setName] = useState('Diluka');
-  const [email, setEmail] = useState('diluka.w@nsbm.ac.lk');
+  // State for profile information with user details
+  const [name, setName] = useState('Thivanka Tharuka');
+  const [email, setEmail] = useState('thivankatharuka36@gmail.com');
   const [points, setPoints] = useState(0);
   const [isVerified, setIsVerified] = useState(true);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -33,6 +33,8 @@ export default function ProfileScreen() {
   // Animation values
   const pointsScale = useSharedValue(1);
   const fabScale = useSharedValue(1);
+  const plusOneOpacity = useSharedValue(0);
+  const plusOneTranslateY = useSharedValue(0);
 
   // Animated styles
   const animatedPointsStyle = useAnimatedStyle(() => ({
@@ -43,20 +45,32 @@ export default function ProfileScreen() {
     transform: [{ scale: fabScale.value }],
   }));
 
-  // Handle FAB press: increment points and animate
+  const animatedPlusOneStyle = useAnimatedStyle(() => ({
+    opacity: plusOneOpacity.value,
+    transform: [{ translateY: plusOneTranslateY.value }],
+  }));
+
+  // Handle FAB press: increment points by 1 with animations
   const handleFabPress = () => {
-    // FAB bounce animation
+    // 1. FAB click bounce effect
     fabScale.value = withSequence(
-      withTiming(0.85, { duration: 80 }),
-      withSpring(1, { damping: 4, stiffness: 200 })
+      withTiming(0.85, { duration: 60 }),
+      withSpring(1, { damping: 4, stiffness: 220 })
     );
 
-    // Points bounce animation
+    // 2. Points counter bounce effect
     pointsScale.value = withSequence(
-      withTiming(1.3, { duration: 120 }),
+      withTiming(1.35, { duration: 100 }),
       withSpring(1, { damping: 5, stiffness: 220 })
     );
 
+    // 3. Floating "+1" indicator
+    plusOneTranslateY.value = 0;
+    plusOneOpacity.value = 1;
+    plusOneTranslateY.value = withTiming(-18, { duration: 550 });
+    plusOneOpacity.value = withTiming(0, { duration: 550 });
+
+    // 4. Increment the state count
     setPoints((prev) => prev + 1);
   };
 
@@ -149,6 +163,10 @@ export default function ProfileScreen() {
               <Animated.Text style={[styles.infoValueRowText, animatedPointsStyle]}>
                 {points}
               </Animated.Text>
+              {/* Floating +1 Indicator */}
+              <Animated.View style={[styles.plusOneBadge, animatedPlusOneStyle]}>
+                <Text style={styles.plusOneText}>+1</Text>
+              </Animated.View>
             </View>
           </View>
         </View>
@@ -157,9 +175,10 @@ export default function ProfileScreen() {
       {/* Floating Action Button (FAB) */}
       <Animated.View style={[styles.fabContainer, animatedFabStyle]}>
         <TouchableOpacity
-          activeOpacity={0.8}
+          activeOpacity={0.7}
           style={styles.fab}
           onPress={handleFabPress}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           onLongPress={() => setIsEditModalVisible(true)}>
           <AppIcon name="plus" size={26} color="#ffffff" />
         </TouchableOpacity>
@@ -313,10 +332,23 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: '#2A2A2A',
   },
+  plusOneBadge: {
+    backgroundColor: '#000000',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginLeft: 6,
+  },
+  plusOneText: {
+    color: '#00E676',
+    fontSize: 12,
+    fontWeight: '800',
+  },
   fabContainer: {
     position: 'absolute',
     bottom: 30,
     right: 24,
+    zIndex: 999,
   },
   fab: {
     width: 58,
@@ -333,7 +365,7 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
       },
       android: {
-        elevation: 6,
+        elevation: 8,
       },
     }),
   },
