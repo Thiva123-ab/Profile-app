@@ -73,7 +73,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" backgroundColor="#000000" />
+      <StatusBar style="light" />
 
       {/* Top Header Bar */}
       <View style={styles.header}>
